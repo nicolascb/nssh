@@ -2,6 +2,8 @@
 
 Command line tool for manage ~/.ssh/config written in Go.
 
+Inspired by [storm](https://github.com/emre/storm) project.
+
 ![](_images/nssh.png)
 ![](_images/nssh.gif)
 
