@@ -1,4 +1,4 @@
-# nssh - An easy way to manage SSH config
+# nssh - An easy way to manage SSH connections in Linux
 
 Command line tool for manage ~/.ssh/config written in Go.
 
@@ -106,11 +106,13 @@ OPTIONS:
 ```
 
 Use ``` -o ``` to set custom options.
+
 Use ``` -r ``` to rename host.
 
 **IMPORTANT**
 
 Use ``` -p ``` to preserve another options.
+
 Use ``` -f ``` to force edit and don't ask to preserve another options.
 
 Examples:
