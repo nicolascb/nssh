@@ -1,6 +1,8 @@
-# nssh - An easy way to manage SSH config
+# nssh - An easy way to manage SSH connections in Linux
 
 Command line tool for manage ~/.ssh/config written in Go.
+
+Inspired by [storm](https://github.com/emre/storm) project.
 
 ![](_images/nssh.png)
 ![](_images/nssh.gif)
@@ -10,6 +12,7 @@ Command line tool for manage ~/.ssh/config written in Go.
 * [Install](#install)
 * [Commands](#commands)
 * [Features](#features)
+* [Donate](#donate)
 
 ## Install
 
@@ -104,11 +107,13 @@ OPTIONS:
 ```
 
 Use ``` -o ``` to set custom options.
+
 Use ``` -r ``` to rename host.
 
 **IMPORTANT**
 
 Use ``` -p ``` to preserve another options.
+
 Use ``` -f ``` to force edit and don't ask to preserve another options.
 
 Examples:
@@ -207,4 +212,10 @@ OPTIONS:
 Examples:
 ```
 nssh export-csv --file ~/nicolas.backup
+```
+
+## Donate
+
+```
+XMR: 48yKKJWPmJq1MW3BFAcyor6vD8RHT85EkXV6D1D7xGPjJksLmfoF7AcNFGPFYbAiYk999Pga6NCNQMZT6uaYqvPvNeSCF8t
 ```
