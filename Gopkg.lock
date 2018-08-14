@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9e1c40e605f725f848d7849cf97152bfa106a5e38d29505a7f4eee66e3518743"
+  digest = "1:b6623c0216e85db2c9d0fb603a35dc5f81833aac4ccc4005beb8f2d74a28826a"
   name = "github.com/nicolascb/nsshconfig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b68d63851f34ed18d7d3e4cc681cd45d25027b22"
+  revision = "7129aa384a50c0f946d7d819c32ddc1a15b31cff"
 
 [[projects]]
   digest = "1:b24d38b282bacf9791408a080f606370efa3d364e4b5fd9ba0f7b87786d3b679"
