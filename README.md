@@ -9,14 +9,15 @@ Inspired by [storm](https://github.com/emre/storm) project.
 
 # Index
 
-* [Install](#install)
-* [Commands](#commands)
-* [Features](#features)
-* [Donate](#donate)
+- [Install](#install)
+- [Commands](#commands)
+- [Features](#features)
+- [Donate](#donate)
 
 ## Install
 
 ### With go get
+
 ```
 go get -u github.com/nicolascb/nssh
 ```
@@ -26,12 +27,13 @@ go get -u github.com/nicolascb/nssh
 [Download binary from releases](https://github.com/nicolascb/nssh/releases)
 
 ## Commands
+
 ```
 USAGE:
    nssh [global options] command [command options] [arguments...]
 
 VERSION:
-   1.0.0
+   1.0.2
 
 DESCRIPTION:
    An easy way to manage SSH config, see more: github.com/nicolascb/nssh
@@ -56,13 +58,13 @@ GLOBAL OPTIONS:
 
 ## Features
 
-* [Add](#add)
-* [Edit](#edit)
-* [List](#list)
-* [Delete](#delete)
-* [Search](#search)
-* [Backup](#backup)
-* [Export to CSV](#export-to-csv)
+- [Add](#add)
+- [Edit](#edit)
+- [List](#list)
+- [Delete](#delete)
+- [Search](#search)
+- [Backup](#backup)
+- [Export to CSV](#export-to-csv)
 
 ## Add
 
@@ -80,14 +82,16 @@ OPTIONS:
 
 User and port is optional.
 
-Use ``` -o ``` to set custom options.
+Use `-o` to set custom options.
 
 Examples:
+
 ```
 nssh add prod 192.168.0.99
 nssh add dev dev@10.16.1.100 -o connecttimeout=60
 nssh add nicolascb root@nicolascb.com.br:5122 --key ~/mykey -o connecttimeout=60 -o loglevel=info
 ```
+
 ## Edit
 
 ```
@@ -103,20 +107,20 @@ OPTIONS:
    -o value     Option config
    -p           Preserve options
    -f           Force edit, don't ask to preserve another options
-
 ```
 
-Use ``` -o ``` to set custom options.
+Use `-o` to set custom options.
 
-Use ``` -r ``` to rename host.
+Use `-r` to rename host.
 
 **IMPORTANT**
 
-Use ``` -p ``` to preserve another options.
+Use `-p` to preserve another options.
 
-Use ``` -f ``` to force edit and don't ask to preserve another options.
+Use `-f` to force edit and don't ask to preserve another options.
 
 Examples:
+
 ```
 # Only rename host and preserve another options
 nssh edit prod -r prod_cloud -p
@@ -136,10 +140,10 @@ NAME:
 
 USAGE:
    nssh list [-h]
-
 ```
 
 Examples:
+
 ```
 nssh list
 ```
@@ -152,10 +156,10 @@ NAME:
 
 USAGE:
    nssh del [-h] name
-
 ```
 
 Examples:
+
 ```
 nssh del dev_teste
 ```
@@ -168,10 +172,10 @@ NAME:
 
 USAGE:
    nssh search [-h] text
-
 ```
 
 Examples:
+
 ```
 nssh search nicolas
 ```
@@ -187,10 +191,10 @@ USAGE:
 
 OPTIONS:
    --file value  Output backup file
-
 ```
 
 Examples:
+
 ```
 nssh backup --file ~/nicolas.backup
 ```
@@ -206,10 +210,10 @@ USAGE:
 
 OPTIONS:
    --file value  Output CSV file
-
 ```
 
 Examples:
+
 ```
 nssh export-csv --file ~/nicolas.backup
 ```
