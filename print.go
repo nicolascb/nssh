@@ -9,15 +9,12 @@ import (
 var (
 	defaultMessage     = color.New(color.FgWhite, color.Bold)
 	globalTitleMessage = color.New(color.FgYellow, color.Bold)
-
-	titleMessage = color.New(color.FgBlue, color.Bold)
-	// globalKeyStyle = color.New(color.FgCyan, color.Bold)
-
-	okMessage  = color.New(color.FgGreen)
-	errMessage = color.New(color.FgRed)
+	titleMessage       = color.New(color.FgBlue, color.Bold)
+	okMessage          = color.New(color.FgGreen)
+	errMessage         = color.New(color.FgRed)
 )
 
-func PrintList(le []ListEntry) {
+func printList(le []ListEntry) {
 	By(Prop("Name", true)).Sort(le)
 	defaultMessage.Printf("List:\n")
 	for _, x := range le {
@@ -37,7 +34,7 @@ func PrintList(le []ListEntry) {
 	return
 }
 
-func PrintGeneral(general map[string]string) {
+func printGeneral(general map[string]string) {
 	globalTitleMessage.Println("	(*) General Options")
 
 	for i, g := range general {
@@ -45,12 +42,12 @@ func PrintGeneral(general map[string]string) {
 	}
 }
 
-func PrintOK(msg string) {
+func printOK(msg string) {
 	okMessage.Printf("✔ OK: ")
 	defaultMessage.Printf("%s\n", msg)
 }
 
-func PrintErr(err error) {
+func printErr(err error) {
 	if err != nil {
 		errMessage.Printf("✗ ERROR: ")
 		defaultMessage.Printf("%s\n", err.Error())

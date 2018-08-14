@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func CliOptions() []cli.Command {
+func cliOptions() []cli.Command {
 
 	// Commands
 	cliCommands := []cli.Command{

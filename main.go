@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"sort"
 	"time"
@@ -14,9 +13,9 @@ var (
 )
 
 func main() {
-	app.Name = APP_NAME
-	app.Description = APP_DESCRIPTION
-	app.Version = APP_VERSION
+	app.Name = appName
+	app.Description = appDescription
+	app.Version = appVersion
 	app.Compiled = time.Now()
 	app.Authors = []cli.Author{
 		cli.Author{
@@ -25,14 +24,13 @@ func main() {
 		},
 	}
 
-	app.Usage = APP_USAGE
-	app.UsageText = APP_USAGE_TEXT
+	app.Usage = appUsage
+	app.UsageText = appUsageText
 
-	app.Commands = CliOptions()
+	app.Commands = cliOptions()
 	sort.Sort(cli.FlagsByName(app.Flags))
 	sort.Sort(cli.CommandsByName(app.Commands))
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
+	if err := app.Run(os.Args); err != nil {
+		printErr(err)
 	}
 }

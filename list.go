@@ -7,6 +7,7 @@ import (
 	"github.com/nicolascb/nsshconfig"
 )
 
+// ListEntry list module
 type ListEntry struct {
 	Name           string
 	User           string
@@ -15,14 +16,14 @@ type ListEntry struct {
 	AnotherOptions []string
 }
 
-var (
-	hL []ListEntry
-	h  ListEntry
-)
+func getList() ([]ListEntry, error) {
+	hL := []ListEntry{}
+	h := ListEntry{}
 
-func CreateList() []ListEntry {
-
-	ParseConfig()
+	// Parse sshconfig
+	if err := nsshconfig.LoadConfig(); err != nil {
+		return hL, err
+	}
 
 	general, _ := nsshconfig.GetEntryByHost("*")
 
@@ -57,16 +58,19 @@ func CreateList() []ListEntry {
 				}
 			}
 
-			h = SetDefaults(h)
+			h, err := setDefaults(h)
+			if err != nil {
+				return hL, err
+			}
 			hL = append(hL, h)
 		}
 
 	}
 
-	return hL
+	return hL, nil
 }
 
-func SetDefaults(e ListEntry) ListEntry {
+func setDefaults(e ListEntry) (ListEntry, error) {
 	notData := "not_specified"
 
 	if e.Name == "" {
@@ -74,7 +78,11 @@ func SetDefaults(e ListEntry) ListEntry {
 	}
 
 	if e.User == "" {
-		e.User = CurrentUser()
+		username, err := getUser()
+		if err != nil {
+			return e, err
+		}
+		e.User = username
 	}
 
 	if e.Hostname == "" {
@@ -85,5 +93,5 @@ func SetDefaults(e ListEntry) ListEntry {
 		e.Port = "22"
 	}
 
-	return e
+	return e, nil
 }

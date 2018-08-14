@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -19,31 +18,30 @@ func Delete(c *cli.Context) error {
 
 	host := c.Args().First()
 
-	// Parse ssh alias
-	ParseConfig()
+	// Parse sshconfig
+	if err := nsshconfig.LoadConfig(); err != nil {
+		return err
+	}
 
 	// Check exist host
 	if _, err := nsshconfig.GetEntryByHost(host); err != nil {
-		PrintErr(fmt.Errorf("Host [%s] not found", host))
-		return nil
+		return fmt.Errorf("Host [%s] not found", host)
 	}
 
 	// Host exist, proceed delete:
 	err := nsshconfig.Delete(host)
 	if err != nil {
-		PrintErr(err)
-		return nil
+		return err
 	}
 
 	// Write file
 	err = nsshconfig.WriteConfig()
 	if err != nil {
-		PrintErr(err)
-		return nil
+		return err
 	}
 
 	// Host deleted
-	PrintOK(fmt.Sprintf("Successfully deleted host [%s]", host))
+	printOK(fmt.Sprintf("Successfully deleted host [%s]", host))
 	return nil
 }
 
@@ -65,19 +63,18 @@ func Add(c *cli.Context) error {
 	if name != "*" {
 		// Connection URI
 		connection := c.Args()[1]
-		optsMap = HostConnect(connection)
+		optsMap = hostConnect(connection)
 	}
 
-	// Load config
-	ParseConfig()
+	// Parse sshconfig
+	if err := nsshconfig.LoadConfig(); err != nil {
+		return err
+	}
 
 	// Check if exist host
-	_, err := nsshconfig.GetEntryByHost(name)
-
-	// Host already exist, print error and exit
-	if err == nil {
-		PrintErr(fmt.Errorf("Host [%s] already exist", name))
-		return nil
+	if !nsshconfig.ExistHost(name) {
+		// Host already exist, print error and exit
+		return fmt.Errorf("Host [%s] already exist", name)
 	}
 
 	// Loop option (-o)
@@ -97,22 +94,17 @@ func Add(c *cli.Context) error {
 	}
 
 	// New
-	err = nsshconfig.New(name, optsMap)
-
-	if err != nil {
-		PrintErr(err)
-		return nil
+	if err := nsshconfig.New(name, optsMap); err != nil {
+		return err
 	}
 
 	// Write file
-	err = nsshconfig.WriteConfig()
-	if err != nil {
-		PrintErr(err)
-		return nil
+	if err := nsshconfig.WriteConfig(); err != nil {
+		return err
 	}
 
 	// OK
-	PrintOK(fmt.Sprintf("Successfully added host [%s]", c.Args().First()))
+	printOK(fmt.Sprintf("Successfully added host [%s]", c.Args().First()))
 	return nil
 }
 
@@ -130,8 +122,7 @@ func Edit(c *cli.Context) error {
 
 	// Check rename (*) general
 	if name == "*" && newname != "" {
-		PrintErr(fmt.Errorf("(*) General can not be renamed"))
-		return nil
+		return fmt.Errorf("(*) General can not be renamed")
 	}
 
 	// SSH Key
@@ -144,18 +135,20 @@ func Edit(c *cli.Context) error {
 	// Check connection is passed
 	if c.NArg() == 2 && name != "*" {
 		connection := c.Args()[1]
-		optsMap = HostConnect(connection)
+		optsMap = hostConnect(connection)
 	}
 
 	// Parse sshconfig
-	ParseConfig()
+	if err := nsshconfig.LoadConfig(); err != nil {
+		return err
+	}
+
 	// Get host
 	host, err := nsshconfig.GetEntryByHost(name)
 
 	// Host not found
 	if err != nil {
-		PrintErr(fmt.Errorf("Host [%s] not found", name))
-		return nil
+		return fmt.Errorf("Host [%s] not found", name)
 	}
 
 	// Rename
@@ -187,15 +180,12 @@ func Edit(c *cli.Context) error {
 			text, _ := reader.ReadString('\n')
 			text = strings.ToLower(strings.TrimSpace(text))
 			if text != "y" {
-				PrintErr(fmt.Errorf("Operation cancelled"))
-				return nil
+				return fmt.Errorf("Operation cancelled")
 			}
 		}
 		if name != "*" {
 			if _, ok := optsMap["hostname"]; !ok {
-				errHostname := errors.New("Hostname not especified: use -p to preserve options")
-				PrintErr(errHostname)
-				return nil
+				return fmt.Errorf("Hostname not especified: use -p to preserve options")
 			}
 		}
 		host.Options = optsMap
@@ -206,40 +196,39 @@ func Edit(c *cli.Context) error {
 	}
 
 	// Save host
-	err = host.Save()
-
-	if err != nil {
-		PrintErr(err)
-		return nil
+	if err = host.Save(); err != nil {
+		return err
 	}
 
 	// Write file
-	err = nsshconfig.WriteConfig()
-	if err != nil {
-		PrintErr(err)
-		return nil
+	if err = nsshconfig.WriteConfig(); err != nil {
+		return err
 	}
 
 	// OK
-	PrintOK(fmt.Sprintf("Successfully edited [%s]", c.Args().First()))
+	printOK(fmt.Sprintf("Successfully edited [%s]", c.Args().First()))
 	return nil
 }
 
 // List aliases in ~/.ssh/config
 func List(ct *cli.Context) error {
 	// Create alias list
-	list := CreateList()
+	list, err := getList()
+	if err != nil {
+		return err
+	}
+
 	// Get general options
 	general, _ := nsshconfig.GetEntryByHost("*")
 
 	if len(list) > 0 {
 		// Print List
-		PrintList(list)
+		printList(list)
 	}
 
 	// If general exist, print general:
 	if general != nil {
-		PrintGeneral(general.Options)
+		printGeneral(general.Options)
 	}
 
 	// Default message, found alias
@@ -254,7 +243,10 @@ func Search(c *cli.Context) error {
 		cli.ShowCommandHelpAndExit(c, "search", 1)
 	}
 	// Exec search
-	found := ExecSearch(c.Args().First())
+	found, err := searchAlias(c.Args().First())
+	if err != nil {
+		return err
+	}
 
 	// Alias not found
 	if len(found) == 0 {
@@ -263,8 +255,8 @@ func Search(c *cli.Context) error {
 	}
 
 	// Print
-	PrintList(foundEntries)
-	defaultMessage.Printf("\nFound %d entries.\n", len(foundEntries))
+	printList(found)
+	defaultMessage.Printf("\nFound %d entries.\n", len(found))
 	return nil
 }
 
@@ -277,14 +269,12 @@ func Backup(c *cli.Context) error {
 	}
 
 	// Copy backup
-	err := CopyFile(file)
-	if err != nil {
-		PrintErr(err)
-		return nil
+	if err := copyFile(file); err != nil {
+		return err
 	}
 
 	// OK
-	PrintOK(fmt.Sprintf("Finished backup [%s]", file))
+	printOK(fmt.Sprintf("Finished backup [%s]", file))
 	return nil
 }
 
@@ -297,13 +287,12 @@ func ExportCSV(c *cli.Context) error {
 	}
 
 	// List and create CSV
-	rows, err := CreateCSV(file)
+	rows, err := generateCSV(file)
 	if err != nil {
-		PrintErr(err)
-		return nil
+		return err
 	}
 
 	// CSV OK
-	PrintOK(fmt.Sprintf("Finished export csv [%s] %d aliases", file, rows))
+	printOK(fmt.Sprintf("Finished export csv [%s] %d aliases", file, rows))
 	return nil
 }

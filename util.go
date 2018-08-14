@@ -4,13 +4,12 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/user"
 	"strings"
 )
 
-func HostConnect(connection string) map[string]string {
+func hostConnect(connection string) map[string]string {
 	options := make(map[string]string)
 	if strings.Contains(connection, "@") {
 		options["user"] = strings.Split(connection, "@")[0]
@@ -33,13 +32,12 @@ func HostConnect(connection string) map[string]string {
 	return options
 }
 
-func CurrentUser() string {
+func getUser() (string, error) {
 	usr, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return "", err
 	}
-	return usr.Username
+	return usr.Username, nil
 }
 
 func Contains(sub string, options []string, str ...string) bool {
@@ -62,11 +60,10 @@ func Contains(sub string, options []string, str ...string) bool {
 	return false
 }
 
-func CopyFile(dst string) error {
+func copyFile(dst string) error {
 	usr, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
 
 	// Format sshconfig filepath
@@ -89,25 +86,25 @@ func CopyFile(dst string) error {
 
 	defer backup.Close()
 
-	_, err = io.Copy(backup, original)
-
-	if err != nil {
+	if _, err = io.Copy(backup, original); err != nil {
 		return err
 	}
 
-	err = backup.Sync()
-	if err != nil {
+	if err = backup.Sync(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func CreateCSV(dst string) (int, error) {
+func generateCSV(dst string) (int, error) {
 
-	list := CreateList()
+	list, err := getList()
+	if err != nil {
+		return 0, err
+	}
+
 	file, err := os.Create(dst)
-
 	if err != nil {
 		return len(list), err
 	}
@@ -123,16 +120,13 @@ func CreateCSV(dst string) (int, error) {
 		"Hostname",
 		"Port"}
 
-	err = writer.Write(header)
-
-	if err != nil {
+	if err = writer.Write(header); err != nil {
 		return len(list), err
 	}
 
 	for _, h := range list {
 		line := []string{h.Name, h.User, h.Hostname, h.Port}
-		err := writer.Write(line)
-		if err != nil {
+		if err := writer.Write(line); err != nil {
 			return len(list), err
 		}
 	}
