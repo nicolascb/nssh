@@ -4,7 +4,6 @@ Command line tool for manage ~/.ssh/config written in Go.
 
 Inspired by [storm](https://github.com/emre/storm) project.
 
-![](_images/nssh.png)
 ![](_images/nssh.gif)
 
 # Index
@@ -25,6 +24,17 @@ go get -u github.com/nicolascb/nssh
 ### Manual
 
 [Download binary from releases](https://github.com/nicolascb/nssh/releases)
+
+### Compilation instructions
+
+```
+$ git clone git@github.com:nicolascb/nssh.git
+$ cd nssh/
+$ make dep
+$ make build
+```
+
+Binary location ./bin
 
 ## Commands
 
