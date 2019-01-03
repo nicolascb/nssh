@@ -1,7 +1,5 @@
 package main
 
-var ()
-
 func searchAlias(substr string) ([]ListEntry, error) {
 	foundEntries := []ListEntry{}
 	entries, err := getList()
