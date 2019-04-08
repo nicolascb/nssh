@@ -72,7 +72,7 @@ func Add(c *cli.Context) error {
 	}
 
 	// Check if exist host
-	if !nsshconfig.ExistHost(name) {
+	if nsshconfig.ExistHost(name) {
 		// Host already exist, print error and exit
 		return fmt.Errorf("Host [%s] already exist", name)
 	}
