@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"bufio"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/nicolascb/nssh/internal/utils"
 	"github.com/nicolascb/nsshconfig"
 	"github.com/urfave/cli"
 )
@@ -41,7 +42,7 @@ func Delete(c *cli.Context) error {
 	}
 
 	// Host deleted
-	printOK(fmt.Sprintf("Successfully deleted host [%s]", host))
+	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully deleted host [%s]", host))
 	return nil
 }
 
@@ -63,7 +64,7 @@ func Add(c *cli.Context) error {
 	if name != "*" {
 		// Connection URI
 		connection := c.Args()[1]
-		optsMap = hostConnect(connection)
+		optsMap = parseHostConnection(connection)
 	}
 
 	// Parse sshconfig
@@ -104,7 +105,7 @@ func Add(c *cli.Context) error {
 	}
 
 	// OK
-	printOK(fmt.Sprintf("Successfully added host [%s]", c.Args().First()))
+	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully added host [%s]\n", c.Args().First()))
 	return nil
 }
 
@@ -135,7 +136,7 @@ func Edit(c *cli.Context) error {
 	// Check connection is passed
 	if c.NArg() == 2 && name != "*" {
 		connection := c.Args()[1]
-		optsMap = hostConnect(connection)
+		optsMap = parseHostConnection(connection)
 	}
 
 	// Parse sshconfig
@@ -176,7 +177,7 @@ func Edit(c *cli.Context) error {
 	if !c.Bool("p") {
 		if !c.Bool("f") {
 			reader := bufio.NewReader(os.Stdin)
-			globalTitleMessage.Printf("Proceed without preserve another options? y/n\n")
+			utils.Printc(utils.GlobalTitleColor, "Proceed without preserve another options? y/n\n")
 			text, _ := reader.ReadString('\n')
 			text = strings.ToLower(strings.TrimSpace(text))
 			if text != "y" {
@@ -206,14 +207,14 @@ func Edit(c *cli.Context) error {
 	}
 
 	// OK
-	printOK(fmt.Sprintf("Successfully edited [%s]", c.Args().First()))
+	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully edited [%s]", c.Args().First()))
 	return nil
 }
 
 // List aliases in ~/.ssh/config
 func List(ct *cli.Context) error {
 	// Create alias list
-	list, err := getList()
+	list, err := GetSSHEntries()
 	if err != nil {
 		return err
 	}
@@ -222,17 +223,20 @@ func List(ct *cli.Context) error {
 	general, _ := nsshconfig.GetEntryByHost("*")
 
 	if len(list) > 0 {
-		// Print List
 		printList(list)
 	}
 
 	// If general exist, print general:
 	if general != nil {
-		printGeneral(general.Options)
+		utils.Printc(utils.GlobalTitleColor, "	(*) General Options")
+
+		for i, g := range general.Options {
+			fmt.Printf("		%s: %s\n", i, g)
+		}
 	}
 
 	// Default message, found alias
-	defaultMessage.Printf("\nFound %d entries\n", len(list))
+	utils.Printc(utils.DefaultColor, fmt.Sprintf("\nFound %d entries\n", len(list)))
 	return nil
 }
 
@@ -250,13 +254,13 @@ func Search(c *cli.Context) error {
 
 	// Alias not found
 	if len(found) == 0 {
-		defaultMessage.Printf("No matches found for [%s]\n", c.Args().First())
+		utils.Printc(utils.DefaultColor, fmt.Sprintf("No matches found for [%s]\n", c.Args().First()))
 		return nil
 	}
 
 	// Print
 	printList(found)
-	defaultMessage.Printf("\nFound %d entries.\n", len(found))
+	utils.Printc(utils.DefaultColor, fmt.Sprintf("\nFound %d entries.\n", len(found)))
 	return nil
 }
 
@@ -269,12 +273,12 @@ func Backup(c *cli.Context) error {
 	}
 
 	// Copy backup
-	if err := copyFile(file); err != nil {
+	if err := utils.CopySSHConfigFile(file); err != nil {
 		return err
 	}
 
 	// OK
-	printOK(fmt.Sprintf("Finished backup [%s]", file))
+	utils.Printc(utils.OkColor, fmt.Sprintf("Finished backup [%s]", file))
 	return nil
 }
 
@@ -293,6 +297,6 @@ func ExportCSV(c *cli.Context) error {
 	}
 
 	// CSV OK
-	printOK(fmt.Sprintf("Finished export csv [%s] %d aliases", file, rows))
+	utils.Printc(utils.OkColor, fmt.Sprintf("Finished export csv [%s] %d aliases", file, rows))
 	return nil
 }

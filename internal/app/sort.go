@@ -1,12 +1,12 @@
-package main
+package app
 
 import (
 	"reflect"
 	"sort"
 )
 
-func Prop(field string, asc bool) func(p1, p2 ListEntry) bool {
-	return func(p1, p2 ListEntry) bool {
+func Prop(field string, asc bool) func(p1, p2 SSHHost) bool {
+	return func(p1, p2 SSHHost) bool {
 
 		v1 := reflect.Indirect(reflect.ValueOf(p1)).FieldByName(field)
 		v2 := reflect.Indirect(reflect.ValueOf(p2)).FieldByName(field)
@@ -29,9 +29,9 @@ func Prop(field string, asc bool) func(p1, p2 ListEntry) bool {
 	}
 }
 
-type By func(p1, p2 ListEntry) bool
+type By func(p1, p2 SSHHost) bool
 
-func (by By) Sort(entries []ListEntry) {
+func (by By) Sort(entries []SSHHost) {
 	ps := &entriesSort{
 		entries: entries,
 		by:      by, // The Sort method's receiver is the function (closure) that defines the sort order.
@@ -40,8 +40,8 @@ func (by By) Sort(entries []ListEntry) {
 }
 
 type entriesSort struct {
-	entries []ListEntry
-	by      func(p1, p2 ListEntry) bool // Closure used in the Less method.
+	entries []SSHHost
+	by      func(p1, p2 SSHHost) bool // Closure used in the Less method.
 }
 
 // Len is part of sort.Interface.

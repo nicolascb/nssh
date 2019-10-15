@@ -1,15 +1,39 @@
-package main
+package app
 
 import (
 	"encoding/csv"
-	"fmt"
-	"io"
 	"os"
-	"os/user"
+	"sort"
 	"strings"
+	"time"
+
+	"github.com/urfave/cli"
 )
 
-func hostConnect(connection string) map[string]string {
+// NewNsshApp create cli interface
+func NewNsshApp() *cli.App {
+	app := cli.NewApp()
+	app.Name = appName
+	app.Description = appDescription
+	app.Version = appVersion
+	app.Compiled = time.Now()
+	app.Authors = []cli.Author{
+		cli.Author{
+			Name:  "Nicolas Barbosa",
+			Email: "ndevbarbosa@gmail.com",
+		},
+	}
+
+	app.Usage = appUsage
+	app.UsageText = appUsageText
+
+	app.Commands = cliOptions()
+	sort.Sort(cli.FlagsByName(app.Flags))
+	sort.Sort(cli.CommandsByName(app.Commands))
+	return app
+}
+
+func parseHostConnection(connection string) map[string]string {
 	options := make(map[string]string)
 	if strings.Contains(connection, "@") {
 		options["user"] = strings.Split(connection, "@")[0]
@@ -32,74 +56,9 @@ func hostConnect(connection string) map[string]string {
 	return options
 }
 
-func getUser() (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return usr.Username, nil
-}
-
-func Contains(sub string, options []string, str ...string) bool {
-	sub = strings.ToLower(sub)
-
-	for _, s := range str {
-		s = strings.ToLower(s)
-		if strings.Contains(s, sub) {
-			return true
-		}
-	}
-
-	for _, o := range options {
-		o = strings.ToLower(o)
-		if strings.Contains(o, sub) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func copyFile(dst string) error {
-	usr, err := user.Current()
-	if err != nil {
-		return err
-	}
-
-	// Format sshconfig filepath
-	sshconfig := fmt.Sprintf("%s/.ssh/config", usr.HomeDir)
-
-	original, err := os.Open(sshconfig)
-
-	if err != nil {
-		return err
-	}
-
-	defer original.Close()
-
-	// Create new file
-	backup, err := os.Create(dst)
-
-	if err != nil {
-		return err
-	}
-
-	defer backup.Close()
-
-	if _, err = io.Copy(backup, original); err != nil {
-		return err
-	}
-
-	if err = backup.Sync(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func generateCSV(dst string) (int, error) {
 
-	list, err := getList()
+	list, err := GetSSHEntries()
 	if err != nil {
 		return 0, err
 	}

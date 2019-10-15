@@ -227,9 +227,3 @@ Examples:
 ```
 nssh export-csv --file ~/nicolas.backup
 ```
-
-## Donate
-
-```
-XMR: 48yKKJWPmJq1MW3BFAcyor6vD8RHT85EkXV6D1D7xGPjJksLmfoF7AcNFGPFYbAiYk999Pga6NCNQMZT6uaYqvPvNeSCF8t
-```
