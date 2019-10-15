@@ -22,15 +22,13 @@ func Contains(sub string, options []string, str ...string) bool {
 	sub = strings.ToLower(sub)
 
 	for _, s := range str {
-		s = strings.ToLower(s)
-		if strings.Contains(s, sub) {
+		if strings.Contains(strings.ToLower(s), sub) {
 			return true
 		}
 	}
 
 	for _, o := range options {
-		o = strings.ToLower(o)
-		if strings.Contains(o, sub) {
+		if strings.Contains(strings.ToLower(o), sub) {
 			return true
 		}
 	}

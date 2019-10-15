@@ -30,14 +30,12 @@ func Delete(c *cli.Context) error {
 	}
 
 	// Host exist, proceed delete:
-	err := nsshconfig.Delete(host)
-	if err != nil {
+	if err := nsshconfig.Delete(host); err != nil {
 		return err
 	}
 
 	// Write file
-	err = nsshconfig.WriteConfig()
-	if err != nil {
+	if err = nsshconfig.WriteConfig(); err != nil {
 		return err
 	}
 
