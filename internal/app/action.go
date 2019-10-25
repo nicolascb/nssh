@@ -35,7 +35,7 @@ func Delete(c *cli.Context) error {
 	}
 
 	// Write file
-	if err = nsshconfig.WriteConfig(); err != nil {
+	if err := nsshconfig.WriteConfig(); err != nil {
 		return err
 	}
 
