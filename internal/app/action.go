@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/nicolascb/nssh/internal/actions"
 	"github.com/nicolascb/nssh/internal/utils"
 	"github.com/nicolascb/nsshconfig"
 	"github.com/urfave/cli"
@@ -17,30 +18,13 @@ func Delete(c *cli.Context) error {
 		cli.ShowCommandHelpAndExit(c, "del", 1)
 	}
 
-	host := c.Args().First()
-
-	// Parse sshconfig
-	if err := nsshconfig.LoadConfig(); err != nil {
-		return err
-	}
-
-	// Check exist host
-	if _, err := nsshconfig.GetEntryByHost(host); err != nil {
-		return fmt.Errorf("Host [%s] not found", host)
-	}
-
-	// Host exist, proceed delete:
-	if err := nsshconfig.Delete(host); err != nil {
-		return err
-	}
-
-	// Write file
-	if err := nsshconfig.WriteConfig(); err != nil {
+	alias := c.Args().First()
+	if err := actions.Delete(alias); err != nil {
 		return err
 	}
 
 	// Host deleted
-	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully deleted host [%s]", host))
+	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully deleted alias [%s]", alias))
 	return nil
 }
 
@@ -70,7 +54,7 @@ func Add(c *cli.Context) error {
 		return err
 	}
 
-	// Check if exist host
+	// Check if exist alias
 	if nsshconfig.ExistHost(name) {
 		// Host already exist, print error and exit
 		return fmt.Errorf("Host [%s] already exist", name)
@@ -103,7 +87,7 @@ func Add(c *cli.Context) error {
 	}
 
 	// OK
-	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully added host [%s]\n", c.Args().First()))
+	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully added alias [%s]\n", c.Args().First()))
 	return nil
 }
 
@@ -142,8 +126,8 @@ func Edit(c *cli.Context) error {
 		return err
 	}
 
-	// Get host
-	host, err := nsshconfig.GetEntryByHost(name)
+	// Get alias
+	alias, err := nsshconfig.GetEntryByHost(name)
 
 	// Host not found
 	if err != nil {
@@ -152,7 +136,7 @@ func Edit(c *cli.Context) error {
 
 	// Rename
 	if newname != "" {
-		host.Host = newname
+		alias.Host = newname
 	}
 
 	// Loop options
@@ -183,19 +167,19 @@ func Edit(c *cli.Context) error {
 			}
 		}
 		if name != "*" {
-			if _, ok := optsMap["hostname"]; !ok {
+			if _, ok := optsMap["aliasname"]; !ok {
 				return fmt.Errorf("Hostname not especified: use -p to preserve options")
 			}
 		}
-		host.Options = optsMap
+		alias.Options = optsMap
 	} else {
 		for k, v := range optsMap {
-			host.Options[k] = v
+			alias.Options[k] = v
 		}
 	}
 
-	// Save host
-	if err = host.Save(); err != nil {
+	// Save alias
+	if err = alias.Save(); err != nil {
 		return err
 	}
 
