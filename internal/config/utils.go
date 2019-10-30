@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"log"
 	"os"
 	"os/user"
@@ -23,7 +22,12 @@ func matchStr(rgxp string, compare string) bool {
 func getSSHConfigPath(homeDir string) (string, error) {
 	fp := path.Join(homeDir, "/.ssh/config")
 	if ok := fileExists(fp); !ok {
-		return "", errors.New("ssh user config not found: ~/.ssh/config")
+		newConfigFile, err := os.Create(fp)
+		if err != nil {
+			return "", err
+		}
+
+		defer newConfigFile.Close()
 	}
 	return fp, nil
 }
