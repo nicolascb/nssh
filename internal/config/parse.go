@@ -2,7 +2,6 @@ package config
 
 import (
 	"bufio"
-	"errors"
 	"io"
 	"sort"
 	"strings"
@@ -22,10 +21,6 @@ func parseConfig(reader io.Reader) ([]Host, error) {
 
 	for scanner.Scan() {
 		fileTextLines = append(fileTextLines, scanner.Text())
-	}
-
-	if len(fileTextLines) == 0 {
-		return nil, errors.New("error: ssh config file is empty")
 	}
 
 	if scanner.Err() != nil {
