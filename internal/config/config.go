@@ -80,9 +80,14 @@ func (cfg *sshConfig) write() error {
 		if err != nil {
 			return err
 		}
+
 		if _, err := swpFile.WriteString(textConfig); err != nil {
 			return err
 		}
+	}
+
+	if err := copyFile(swpFile.Name(), cfg.configFile); err != nil {
+		return err
 	}
 
 	return nil
