@@ -58,7 +58,7 @@ func (cfg *sshConfig) DeleteHost(alias string) error {
 	for idx, x := range cfg.hosts {
 		if strings.ToLower(x.Alias) == strings.ToLower(alias) {
 			cfg.hosts = append(cfg.hosts[:idx], cfg.hosts[idx+1:]...)
-			return nil
+			return cfg.write()
 		}
 	}
 
