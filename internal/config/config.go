@@ -11,7 +11,7 @@ import (
 
 type SSHConfig interface {
 	DeleteHost(string) error
-	WriteConfig() error
+	write() error
 }
 
 type sshConfig struct {
@@ -67,7 +67,7 @@ func (cfg *sshConfig) DeleteHost(alias string) error {
 
 // WriteConfig write buffer hosts to a temporary file and
 // then overwrite the ssh configuration file
-func (cfg *sshConfig) WriteConfig() error {
+func (cfg *sshConfig) write() error {
 	swpFile, err := ioutil.TempFile("/tmp", "config.*.swp")
 	if err != nil {
 		return err
