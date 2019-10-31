@@ -10,6 +10,7 @@ import (
 )
 
 type SSHConfig interface {
+	NewHost(string, map[string]string) error
 	DeleteHost(string) error
 	write() error
 }
@@ -50,6 +51,44 @@ func LoadUserConfig() (SSHConfig, error) {
 		configFile: configFile,
 		hosts:      hosts,
 	}, nil
+}
+func validateNewHost(alias string, options map[string]string, bufferHosts []Host) error {
+	if len(alias) == 0 {
+		return errors.New("New host alias can't be empty")
+	}
+
+	if _, ok := options["hostname"]; !ok && alias != "*" {
+		return errors.New("Hostname not found")
+	}
+
+	for key, value := range options {
+		if len(value) == 0 {
+			return fmt.Errorf("Parameter %s can't be empty", key)
+		}
+	}
+	for _, bh := range bufferHosts {
+		if bh.Alias == alias {
+			return errors.New("Host already exist")
+		}
+	}
+
+	return nil
+}
+
+func (cfg *sshConfig) NewHost(alias string, options map[string]string) error {
+	if err := validateNewHost(alias, options, cfg.hosts); err != nil {
+		return err
+	}
+
+	newHost := Host{
+		Alias:   alias,
+		Options: options,
+	}
+
+	// TODO: Sort after insert a new host
+	cfg.hosts = append(cfg.hosts, newHost)
+
+	return cfg.write()
 }
 
 // DeleteHost delete host configuration

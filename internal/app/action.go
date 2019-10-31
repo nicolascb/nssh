@@ -35,54 +35,25 @@ func Add(c *cli.Context) error {
 		cli.ShowCommandHelpAndExit(c, "add", 1)
 	}
 
+	var (
+		alias   string
+		sshkey  string
+		uri     string
+		options []string
+	)
+
 	// Host name
-	name := c.Args().First()
+	alias = c.Args().First()
 	// SSH Key
-	sshkey := c.String("key")
+	sshkey = c.String("key")
 	// Custom options
-	opts := c.StringSlice("o")
-	optsMap := make(map[string]string)
+	options = c.StringSlice("o")
 
-	if name != "*" {
-		// Connection URI
-		connection := c.Args()[1]
-		optsMap = parseHostConnection(connection)
+	if len(c.Args()) > 1 {
+		uri = c.Args()[1]
 	}
 
-	// Parse sshconfig
-	if err := nsshconfig.LoadConfig(); err != nil {
-		return err
-	}
-
-	// Check if exist alias
-	if nsshconfig.ExistHost(name) {
-		// Host already exist, print error and exit
-		return fmt.Errorf("Host [%s] already exist", name)
-	}
-
-	// Loop option (-o)
-	if len(opts) > 0 {
-		for _, o := range opts {
-			if strings.Contains(o, "=") {
-				key := strings.Split(o, "=")[0]
-				val := strings.Split(o, "=")[1]
-				optsMap[strings.ToLower(key)] = val
-			}
-		}
-	}
-
-	// sshkey flag
-	if sshkey != "" {
-		optsMap["identityfile"] = sshkey
-	}
-
-	// New
-	if err := nsshconfig.New(name, optsMap); err != nil {
-		return err
-	}
-
-	// Write file
-	if err := nsshconfig.WriteConfig(); err != nil {
+	if err := actions.Add(alias, uri, sshkey, options); err != nil {
 		return err
 	}
 
