@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"reflect"
 	"strings"
@@ -46,6 +47,60 @@ func Test_parseConfig(t *testing.T) {
 			wantErr:    false,
 			inspectErr: func(error, *testing.T) {},
 		},
+		{
+			name: "Todos os hosts devem ser carregados mesmo se o espaçamento entre o nome do host seja tab",
+			args: func(*testing.T) args {
+				content := "host server\nHostName 192.168.0.1\nUser root\nPort 22\nhost		server2\nHostName 192.168.0.2"
+				return args{
+					reader: strings.NewReader(content),
+				}
+			},
+			want1: []Host{
+				Host{
+					Alias: "server",
+					Options: map[string]string{
+						"hostname": "192.168.0.1",
+						"user":     "root",
+						"port":     "22",
+					},
+				},
+				Host{
+					Alias: "server2",
+					Options: map[string]string{
+						"hostname": "192.168.0.2",
+					},
+				},
+			},
+			wantErr:    false,
+			inspectErr: func(error, *testing.T) {},
+		},
+		{
+			name: "Todos os hosts devem ser carregados mesmo se o espaçamento entre as opções seja um tab",
+			args: func(*testing.T) args {
+				content := "host server\nHostName 192.168.0.1\nUser root\nPort 22\nhost server2\nHostName		192.168.0.2"
+				return args{
+					reader: strings.NewReader(content),
+				}
+			},
+			want1: []Host{
+				Host{
+					Alias: "server",
+					Options: map[string]string{
+						"hostname": "192.168.0.1",
+						"user":     "root",
+						"port":     "22",
+					},
+				},
+				Host{
+					Alias: "server2",
+					Options: map[string]string{
+						"hostname": "192.168.0.2",
+					},
+				},
+			},
+			wantErr:    false,
+			inspectErr: func(error, *testing.T) {},
+		},
 	}
 
 	for _, tt := range tests {
@@ -53,7 +108,8 @@ func Test_parseConfig(t *testing.T) {
 			tArgs := tt.args(t)
 
 			got1, err := parseConfig(tArgs.reader)
-
+			fmt.Printf("name: %s\n", tt.name)
+			fmt.Println("=============================")
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("parseConfig got1 = %v, want1: %v", got1, tt.want1)
 			}

@@ -34,7 +34,7 @@ func parseConfig(reader io.Reader) ([]Host, error) {
 			continue
 		}
 
-		if matchStr("^host ", lineText) {
+		if matchStr("^host ", tabToSpace(lineText)) {
 			if tmpHost.Alias != "" {
 				aliases = append(aliases, tmpHost.Alias)
 				tmpMapHost[tmpHost.Alias] = tmpHost
@@ -43,7 +43,7 @@ func parseConfig(reader io.Reader) ([]Host, error) {
 			}
 			// set host alias name
 			alias := lineText[4:len(lineText)]
-			tmpHost.Alias = strings.TrimSpace(alias)
+			tmpHost.Alias = strings.TrimSpace(tabToSpace(alias))
 			continue
 		}
 
@@ -53,13 +53,15 @@ func parseConfig(reader io.Reader) ([]Host, error) {
 			line = strings.TrimSpace(line)
 
 			// split default when value is after space
-			lineCfg := strings.SplitN(line, " ", 2)
+			lineCfg := strings.Split(tabToSpace(line), " ")
 			if strings.Contains(line, "=") {
-				lineCfg = strings.SplitN(line, "=", 2)
+				lineCfg = strings.Split(line, "=")
 			}
+			if len(lineCfg) > 1 {
 
-			if len(lineCfg) == 2 {
-				tmpHost.Options[strings.ToLower(lineCfg[0])] = strings.TrimSpace(lineCfg[1])
+				key := lineCfg[0]
+				val := strings.Join(lineCfg[1:], "")
+				tmpHost.Options[strings.ToLower(key)] = strings.TrimSpace(val)
 			}
 		}
 

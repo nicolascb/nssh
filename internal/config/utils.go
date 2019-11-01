@@ -8,6 +8,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 // matchStr check regexp match
@@ -71,4 +72,20 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return out.Close()
+}
+
+func tabToSpace(input string) string {
+	var result []string
+
+	for _, i := range input {
+		switch {
+		// all these considered as space, including tab \t
+		// '\t', '\n', '\v', '\f', '\r',' ', 0x85, 0xA0
+		case unicode.IsSpace(i):
+			result = append(result, " ") // replace tab with space
+		case !unicode.IsSpace(i):
+			result = append(result, string(i))
+		}
+	}
+	return strings.Join(result, "")
 }
