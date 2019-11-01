@@ -11,6 +11,7 @@ import (
 
 type SSHConfig interface {
 	NewHost(string, map[string]string) error
+	UpdateHost(string, string, map[string]string, bool) error
 	DeleteHost(string) error
 	write() error
 }
@@ -52,9 +53,9 @@ func LoadUserConfig() (SSHConfig, error) {
 		hosts:      hosts,
 	}, nil
 }
-func validateNewHost(alias string, options map[string]string, bufferHosts []Host) error {
+func validateOptions(updateHost bool, alias string, options map[string]string, bufferHosts []Host) error {
 	if len(alias) == 0 {
-		return errors.New("New host alias can't be empty")
+		return errors.New("Host alias can't be empty")
 	}
 
 	if _, ok := options["hostname"]; !ok && alias != "*" {
@@ -66,17 +67,26 @@ func validateNewHost(alias string, options map[string]string, bufferHosts []Host
 			return fmt.Errorf("Parameter %s can't be empty", key)
 		}
 	}
+
 	for _, bh := range bufferHosts {
-		if bh.Alias == alias {
+		if !updateHost && bh.Alias == alias {
 			return errors.New("Host already exist")
 		}
+
+		if bh.Alias == alias {
+			return nil
+		}
+	}
+
+	if updateHost {
+		return fmt.Errorf("Update failed: host [%s] not found", alias)
 	}
 
 	return nil
 }
 
 func (cfg *sshConfig) NewHost(alias string, options map[string]string) error {
-	if err := validateNewHost(alias, options, cfg.hosts); err != nil {
+	if err := validateOptions(false, alias, options, cfg.hosts); err != nil {
 		return err
 	}
 
@@ -102,6 +112,39 @@ func (cfg *sshConfig) DeleteHost(alias string) error {
 	}
 
 	return fmt.Errorf("Host [%s] not found", alias)
+}
+
+func (cfg *sshConfig) UpdateHost(oldAlias, newAlias string, options map[string]string, preserveOptions bool) error {
+	if err := validateOptions(true, oldAlias, options, cfg.hosts); err != nil {
+		return err
+	}
+
+	hostAlias := oldAlias
+	if len(newAlias) > 0 {
+		hostAlias = newAlias
+	}
+
+	editedHost := Host{
+		Alias:   hostAlias,
+		Options: options,
+	}
+
+	for index, host := range cfg.hosts {
+		if host.Alias == oldAlias {
+			if !preserveOptions {
+				cfg.hosts[index] = editedHost
+				break
+			}
+
+			for key, val := range editedHost.Options {
+				cfg.hosts[index].Options[key] = val
+			}
+
+			break
+		}
+	}
+
+	return cfg.write()
 }
 
 // WriteConfig write buffer hosts to a temporary file and

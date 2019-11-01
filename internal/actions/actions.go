@@ -1,10 +1,13 @@
 package actions
 
 import (
+	"bufio"
 	"errors"
+	"os"
 	"strings"
 
 	"github.com/nicolascb/nssh/internal/config"
+	"github.com/nicolascb/nssh/internal/utils"
 )
 
 // Delete remove host alias
@@ -22,25 +25,11 @@ func Delete(alias string) error {
 	return nil
 }
 
+// Add host to sshconfig file
 func Add(alias, uri, sshkey string, options []string) error {
-	hostOptions := make(map[string]string)
-
-	if alias != "*" {
-		user, port, hostname := parseURI(uri)
-
-		if len(user) > 0 {
-			hostOptions["user"] = user
-		}
-
-		if len(port) > 0 {
-			hostOptions["port"] = port
-		}
-
-		if len(hostname) > 0 {
-			hostOptions["hostname"] = hostname
-		} else {
-			return errors.New("Hostname not found")
-		}
+	hostOptions, err := getHostOptions(alias, uri, sshkey, options)
+	if err != nil {
+		return err
 	}
 
 	sshConfig, err := config.LoadUserConfig()
@@ -48,22 +37,49 @@ func Add(alias, uri, sshkey string, options []string) error {
 		return err
 	}
 
-	for _, opt := range options {
-		splited := strings.Split(opt, "=")
-		if len(splited) > 1 {
-			key := strings.ToLower(splited[0])
-			val := strings.ToLower(splited[1])
-			hostOptions[key] = val
-		}
-	}
-
-	if len(sshkey) > 0 {
-		hostOptions["identityfile"] = sshkey
-	}
-
 	if err := sshConfig.NewHost(alias, hostOptions); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// Edit host
+func Edit(oldAlias, newAlias, uri, sshkey string, options []string, forceUpdate, preserveOptions bool) error {
+	if !preserveOptions && !forceUpdate {
+		if confirmProceedUpdate() {
+			return errors.New("Operation cancelled")
+		}
+	}
+
+	hostOptions, err := getHostOptions(oldAlias, uri, sshkey, options)
+	if err != nil {
+		return err
+	}
+
+	sshConfig, err := config.LoadUserConfig()
+	if err != nil {
+		return err
+	}
+
+	if err := sshConfig.UpdateHost(oldAlias, newAlias, hostOptions, preserveOptions); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func confirmProceedUpdate() bool {
+	reader := bufio.NewReader(os.Stdin)
+	utils.Printc(utils.GlobalTitleColor, "Proceed without preserve another options? y/n\n")
+	text, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+
+	if strings.ToLower(strings.TrimSpace(text)) == "y" {
+		return true
+	}
+
+	return false
 }
