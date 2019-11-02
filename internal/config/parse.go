@@ -42,7 +42,7 @@ func parseConfig(reader io.Reader) ([]Host, error) {
 				tmpHost.Options = make(map[string]string)
 			}
 			// set host alias name
-			alias := lineText[4:len(lineText)]
+			alias := lineText[4:]
 			tmpHost.Alias = strings.TrimSpace(tabToSpace(alias))
 			continue
 		}
