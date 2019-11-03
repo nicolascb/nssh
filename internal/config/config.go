@@ -122,7 +122,7 @@ func (cfg *sshConfig) NewHost(alias string, options map[string]string) error {
 // need call WriteConfig for apply
 func (cfg *sshConfig) DeleteHost(alias string) error {
 	for idx, x := range cfg.hosts {
-		if strings.ToLower(x.Alias) == strings.ToLower(alias) {
+		if strings.EqualFold(x.Alias, alias) {
 			cfg.hosts = append(cfg.hosts[:idx], cfg.hosts[idx+1:]...)
 			return cfg.write()
 		}
