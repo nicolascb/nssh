@@ -162,6 +162,7 @@ func (cfg *sshConfig) UpdateHost(oldAlias, newAlias string, options map[string]s
 				cfg.hosts[index].Options[key] = val
 			}
 
+			cfg.hosts[index].Alias = hostAlias
 			break
 		}
 	}
