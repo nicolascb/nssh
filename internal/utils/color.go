@@ -11,7 +11,3 @@ var (
 	OkColor          = color.New(color.FgGreen)
 	ErrColor         = color.New(color.FgRed)
 )
-
-func Printc(color *color.Color, msg string) {
-	color.Print(msg)
-}
