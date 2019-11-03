@@ -9,6 +9,19 @@ import (
 	"strings"
 )
 
+const (
+	// GerneralDefinitions identifies the host that contains parameters for all connections
+	GeneralDefinitions = "*"
+)
+
+const (
+	// ActionTypeNew id to identify new hosts
+	ActionTypeNew = iota + 1
+	// ActionTypeUpdate id to identify updates
+	ActionTypeUpdate
+)
+
+// SSHConfig interface to manipulate ssh settings
 type SSHConfig interface {
 	NewHost(string, map[string]string) error
 	UpdateHost(string, string, map[string]string, bool) error
