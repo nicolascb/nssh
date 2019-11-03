@@ -1,12 +1,12 @@
 package app
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/nicolascb/nssh/internal/actions"
+	"github.com/nicolascb/nssh/internal/config"
 	"github.com/nicolascb/nssh/internal/utils"
 	"github.com/nicolascb/nsshconfig"
 	"github.com/urfave/cli"
@@ -23,15 +23,14 @@ func Delete(c *cli.Context) error {
 		return err
 	}
 
-	// Host deleted
-	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully deleted alias [%s]", alias))
+	utils.OkColor.Printf("Successfully deleted alias [%s]", alias)
 	return nil
 }
 
 // Add alias
 func Add(c *cli.Context) error {
 	// Args validation
-	if c.NArg() < 2 && c.Args().First() != "*" {
+	if c.NArg() < 2 && c.Args().First() != config.GeneralDefinitions {
 		cli.ShowCommandHelpAndExit(c, "add", 1)
 	}
 
@@ -58,7 +57,7 @@ func Add(c *cli.Context) error {
 	}
 
 	// OK
-	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully added alias [%s]\n", c.Args().First()))
+	utils.OkColor.Printf("Successfully added alias [%s]\n", c.Args().First())
 	return nil
 }
 
