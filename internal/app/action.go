@@ -68,103 +68,47 @@ func Edit(c *cli.Context) error {
 		cli.ShowCommandHelpAndExit(c, "edit", 1)
 	}
 
-	// Host name
-	name := c.Args().First()
-	// New name
-	newname := c.String("r")
+	var (
+		oldAlias string
+		newAlias string
+		sshkey   string
+		uri      string
+		options  []string
+	)
 
-	// Check rename (*) general
-	if name == "*" && newname != "" {
-		return fmt.Errorf("(*) General can not be renamed")
-	}
-
+	// Old host name
+	oldAlias = c.Args().First()
+	// New host name
+	newAlias = c.String("r")
 	// SSH Key
-	sshkey := c.String("key")
+	sshkey = c.String("key")
 	// Custom options
-	opts := c.StringSlice("o")
-	// Map custom options
-	optsMap := make(map[string]string)
+	options = c.StringSlice("o")
+
+	if oldAlias == config.GeneralDefinitions && newAlias != "" {
+		return errors.New("(*) General can not be renamed")
+	}
 
 	// Check connection is passed
-	if c.NArg() == 2 && name != "*" {
-		connection := c.Args()[1]
-		optsMap = parseHostConnection(connection)
+	if c.NArg() == 2 && oldAlias != config.GeneralDefinitions {
+		uri = c.Args()[1]
 	}
 
-	// Parse sshconfig
-	if err := nsshconfig.LoadConfig(); err != nil {
+	if err := actions.Edit(oldAlias, newAlias, uri, sshkey, options, c.Bool("f"), c.Bool("p")); err != nil {
 		return err
 	}
 
-	// Get alias
-	alias, err := nsshconfig.GetEntryByHost(name)
-
-	// Host not found
-	if err != nil {
-		return fmt.Errorf("Host [%s] not found", name)
-	}
-
-	// Rename
-	if newname != "" {
-		alias.Host = newname
-	}
-
-	// Loop options
-	if len(opts) > 0 {
-		for _, o := range opts {
-			if strings.Contains(o, "=") {
-				key := strings.Split(o, "=")[0]
-				val := strings.Split(o, "=")[1]
-				optsMap[strings.ToLower(key)] = val
-			}
-		}
-	}
-
-	// sshkey flag
-	if sshkey != "" {
-		optsMap["identityfile"] = sshkey
-	}
-
-	// Preserve options
-	if !c.Bool("p") {
-		if !c.Bool("f") {
-			reader := bufio.NewReader(os.Stdin)
-			utils.Printc(utils.GlobalTitleColor, "Proceed without preserve another options? y/n\n")
-			text, _ := reader.ReadString('\n')
-			text = strings.ToLower(strings.TrimSpace(text))
-			if text != "y" {
-				return fmt.Errorf("Operation cancelled")
-			}
-		}
-		if name != "*" {
-			if _, ok := optsMap["aliasname"]; !ok {
-				return fmt.Errorf("Hostname not especified: use -p to preserve options")
-			}
-		}
-		alias.Options = optsMap
-	} else {
-		for k, v := range optsMap {
-			alias.Options[k] = v
-		}
-	}
-
-	// Save alias
-	if err = alias.Save(); err != nil {
-		return err
-	}
-
-	// Write file
-	if err = nsshconfig.WriteConfig(); err != nil {
-		return err
-	}
-
-	// OK
-	utils.Printc(utils.OkColor, fmt.Sprintf("Successfully edited [%s]", c.Args().First()))
+	utils.OkColor.Printf("Successfully edited [%s]\n", c.Args().First())
 	return nil
 }
 
 // List aliases in ~/.ssh/config
 func List(ct *cli.Context) error {
+
+	items, err := actions.Print()
+	fmt.Println(items, err)
+	return nil
+
 	// Create alias list
 	list, err := GetSSHEntries()
 	if err != nil {
@@ -180,7 +124,7 @@ func List(ct *cli.Context) error {
 
 	// If general exist, print general:
 	if general != nil {
-		utils.Printc(utils.GlobalTitleColor, "	(*) General Options")
+		utils.GlobalTitleColor.Print("	(*) General Options")
 
 		for i, g := range general.Options {
 			fmt.Printf("		%s: %s\n", i, g)
@@ -188,7 +132,7 @@ func List(ct *cli.Context) error {
 	}
 
 	// Default message, found alias
-	utils.Printc(utils.DefaultColor, fmt.Sprintf("\nFound %d entries\n", len(list)))
+	utils.DefaultColor.Printf("\nFound %d entries\n", len(list))
 	return nil
 }
 
@@ -206,13 +150,13 @@ func Search(c *cli.Context) error {
 
 	// Alias not found
 	if len(found) == 0 {
-		utils.Printc(utils.DefaultColor, fmt.Sprintf("No matches found for [%s]\n", c.Args().First()))
+		utils.DefaultColor.Printf("No matches found for [%s]\n", c.Args().First())
 		return nil
 	}
 
 	// Print
 	printList(found)
-	utils.Printc(utils.DefaultColor, fmt.Sprintf("\nFound %d entries.\n", len(found)))
+	// utils.Printc(utils.DefaultColor, fmt.Sprintf("\nFound %d entries.\n", len(found)))
 	return nil
 }
 
@@ -230,7 +174,7 @@ func Backup(c *cli.Context) error {
 	}
 
 	// OK
-	utils.Printc(utils.OkColor, fmt.Sprintf("Finished backup [%s]", file))
+	// utils.Printc(utils.OkColor, fmt.Sprintf("Finished backup [%s]", file))
 	return nil
 }
 
@@ -247,8 +191,8 @@ func ExportCSV(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
+	print(rows)
 	// CSV OK
-	utils.Printc(utils.OkColor, fmt.Sprintf("Finished export csv [%s] %d aliases", file, rows))
+	// utils.Printc(utils.OkColor, fmt.Sprintf("Finished export csv [%s] %d aliases", file, rows))
 	return nil
 }
