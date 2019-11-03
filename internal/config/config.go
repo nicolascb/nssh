@@ -26,6 +26,7 @@ type SSHConfig interface {
 	NewHost(string, map[string]string) error
 	UpdateHost(string, string, map[string]string, bool) error
 	DeleteHost(string) error
+	Hosts() []Host
 	write() error
 }
 
@@ -196,6 +197,10 @@ func (cfg *sshConfig) write() error {
 	}
 
 	return nil
+}
+
+func (cfg *sshConfig) Hosts() []Host {
+	return cfg.hosts
 }
 
 func hostDecoder(host Host) (string, error) {
