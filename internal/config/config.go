@@ -67,13 +67,16 @@ func LoadUserConfig() (SSHConfig, error) {
 		hosts:      hosts,
 	}, nil
 }
-func validateOptions(updateHost bool, alias string, options map[string]string, bufferHosts []Host) error {
+
+func validateOptions(actionType int, needHostname bool, alias string, options map[string]string, bufferHosts []Host) error {
 	if len(alias) == 0 {
 		return errors.New("Host alias can't be empty")
 	}
 
-	if _, ok := options["hostname"]; !ok && alias != "*" {
-		return errors.New("Hostname not found")
+	if needHostname && alias != GeneralDefinitions {
+		if _, ok := options["hostname"]; !ok {
+			return errors.New("Hostname not found")
+		}
 	}
 
 	for key, value := range options {
@@ -83,7 +86,7 @@ func validateOptions(updateHost bool, alias string, options map[string]string, b
 	}
 
 	for _, bh := range bufferHosts {
-		if !updateHost && bh.Alias == alias {
+		if actionType == ActionTypeNew && bh.Alias == alias {
 			return errors.New("Host already exist")
 		}
 
@@ -92,7 +95,7 @@ func validateOptions(updateHost bool, alias string, options map[string]string, b
 		}
 	}
 
-	if updateHost {
+	if actionType == ActionTypeUpdate {
 		return fmt.Errorf("Update failed: host [%s] not found", alias)
 	}
 
@@ -100,7 +103,7 @@ func validateOptions(updateHost bool, alias string, options map[string]string, b
 }
 
 func (cfg *sshConfig) NewHost(alias string, options map[string]string) error {
-	if err := validateOptions(false, alias, options, cfg.hosts); err != nil {
+	if err := validateOptions(ActionTypeNew, true, alias, options, cfg.hosts); err != nil {
 		return err
 	}
 
@@ -129,7 +132,12 @@ func (cfg *sshConfig) DeleteHost(alias string) error {
 }
 
 func (cfg *sshConfig) UpdateHost(oldAlias, newAlias string, options map[string]string, preserveOptions bool) error {
-	if err := validateOptions(true, oldAlias, options, cfg.hosts); err != nil {
+	var needHostname bool
+	if !preserveOptions {
+		needHostname = true
+	}
+
+	if err := validateOptions(ActionTypeUpdate, needHostname, oldAlias, options, cfg.hosts); err != nil {
 		return err
 	}
 
