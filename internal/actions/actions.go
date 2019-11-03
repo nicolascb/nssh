@@ -1,10 +1,9 @@
 package actions
 
 import (
-	"bufio"
 	"errors"
+	"fmt"
 	"os"
-	"strings"
 
 	"github.com/nicolascb/nssh/internal/config"
 	"github.com/nicolascb/nssh/internal/utils"
@@ -61,17 +60,34 @@ func Edit(oldAlias, newAlias, uri, sshkey string, options []string, forceUpdate,
 	return nil
 }
 
-func confirmProceedUpdate() bool {
-	reader := bufio.NewReader(os.Stdin)
-	utils.Printc(utils.GlobalTitleColor, "Proceed without preserve another options? y/n\n")
-	text, err := reader.ReadString('\n')
+func Print() (int, error) {
+	sshConfig, err := config.LoadUserConfig()
 	if err != nil {
-		return false
+		return 0, err
 	}
 
-	if strings.ToLower(strings.TrimSpace(text)) == "y" {
-		return true
+	var general config.Host
+	hosts := sshConfig.Hosts()
+	for _, host := range hosts {
+		if host.Alias == config.GeneralDefinitions {
+			general = host
+			continue
+		}
+
+		uri := host.Options["hostname"]
+		if port, ok := host.Options["port"]; ok {
+			uri = fmt.Sprintf("%s:%s", uri, port)
+		}
+
+		if user, ok := host.Options["user"]; ok {
+			uri = fmt.Sprintf("%s@%s", user, uri)
+		}
+
+		output := fmt.Sprintf(" -> %s\n", uri)
+		utils.TitleColor.Printf("	%s", host.Alias)
+		fmt.Print(output)
 	}
 
-	return false
+	utils.DefaultColor.Printf("general: %v\n", general)
+	return len(hosts), nil
 }
