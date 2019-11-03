@@ -27,11 +27,7 @@ func Delete(alias string) error {
 
 // Add host to sshconfig file
 func Add(alias, uri, sshkey string, options []string) error {
-	hostOptions, err := getHostOptions(alias, uri, sshkey, options)
-	if err != nil {
-		return err
-	}
-
+	hostOptions := getHostOptions(alias, uri, sshkey, options)
 	sshConfig, err := config.LoadUserConfig()
 	if err != nil {
 		return err
@@ -47,16 +43,12 @@ func Add(alias, uri, sshkey string, options []string) error {
 // Edit host
 func Edit(oldAlias, newAlias, uri, sshkey string, options []string, forceUpdate, preserveOptions bool) error {
 	if !preserveOptions && !forceUpdate {
-		if confirmProceedUpdate() {
+		if !confirmProceedUpdate(os.Stdin) {
 			return errors.New("Operation cancelled")
 		}
 	}
 
-	hostOptions, err := getHostOptions(oldAlias, uri, sshkey, options)
-	if err != nil {
-		return err
-	}
-
+	hostOptions := getHostOptions(oldAlias, uri, sshkey, options)
 	sshConfig, err := config.LoadUserConfig()
 	if err != nil {
 		return err
