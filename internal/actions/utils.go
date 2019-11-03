@@ -35,10 +35,10 @@ func parseURI(uri string) (string, string, string) {
 	return user, port, hostname
 }
 
-func getHostOptions(alias, uri, sshkey string, options []string) (map[string]string, error) {
+func getHostOptions(alias, uri, sshkey string, options []string) map[string]string {
 	hostOptions := make(map[string]string)
 
-	if alias != "*" {
+	if alias != config.GeneralDefinitions {
 		user, port, hostname := parseURI(uri)
 
 		if len(user) > 0 {
@@ -51,8 +51,6 @@ func getHostOptions(alias, uri, sshkey string, options []string) (map[string]str
 
 		if len(hostname) > 0 {
 			hostOptions["hostname"] = hostname
-		} else {
-			return nil, errors.New("Hostname not found")
 		}
 	}
 
@@ -69,5 +67,21 @@ func getHostOptions(alias, uri, sshkey string, options []string) (map[string]str
 		}
 	}
 
-	return hostOptions, nil
+	return hostOptions
+}
+
+func confirmProceedUpdate(out io.Reader) bool {
+	reader := bufio.NewReader(out)
+	utils.GlobalTitleColor.Print("Proceed without preserve another options? y/n\n")
+
+	text, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+
+	if strings.ToLower(strings.TrimSpace(text)) == "y" {
+		return true
+	}
+
+	return false
 }
