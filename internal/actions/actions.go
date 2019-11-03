@@ -2,11 +2,10 @@ package actions
 
 import (
 	"errors"
-	"fmt"
 	"os"
+	"strings"
 
 	"github.com/nicolascb/nssh/internal/config"
-	"github.com/nicolascb/nssh/internal/utils"
 )
 
 // Delete remove host alias
@@ -70,27 +69,31 @@ func Print() (string, error) {
 	output := formatOutput(sshConfig.Hosts())
 	return output, nil
 }
+
+// Search host by text
+// Compare if host/hostname match searched word
+func Search(word string) (string, error) {
+	sshConfig, err := config.LoadUserConfig()
+	if err != nil {
+		return "", err
+	}
+
+	var foundHosts []config.Host
 	hosts := sshConfig.Hosts()
 	for _, host := range hosts {
-		if host.Alias == config.GeneralDefinitions {
-			general = host
+		if strings.Contains(host.Alias, word) {
+			foundHosts = append(foundHosts, host)
 			continue
 		}
 
-		uri := host.Options["hostname"]
-		if port, ok := host.Options["port"]; ok {
-			uri = fmt.Sprintf("%s:%s", uri, port)
+		if hostname, ok := host.Options["hostname"]; ok {
+			if strings.Contains(hostname, word) {
+				foundHosts = append(foundHosts, host)
+				continue
+			}
 		}
-
-		if user, ok := host.Options["user"]; ok {
-			uri = fmt.Sprintf("%s@%s", user, uri)
-		}
-
-		output := fmt.Sprintf(" -> %s\n", uri)
-		utils.TitleColor.Printf("	%s", host.Alias)
-		fmt.Print(output)
 	}
 
-	utils.DefaultColor.Printf("general: %v\n", general)
-	return len(hosts), nil
+	output := formatOutput(foundHosts)
+	return output, nil
 }

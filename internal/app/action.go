@@ -8,7 +8,6 @@ import (
 	"github.com/nicolascb/nssh/internal/actions"
 	"github.com/nicolascb/nssh/internal/config"
 	"github.com/nicolascb/nssh/internal/utils"
-	"github.com/nicolascb/nsshconfig"
 	"github.com/urfave/cli"
 )
 
@@ -142,21 +141,14 @@ func Search(c *cli.Context) error {
 	if c.NArg() < 1 {
 		cli.ShowCommandHelpAndExit(c, "search", 1)
 	}
-	// Exec search
-	found, err := searchAlias(c.Args().First())
+
+	word := c.Args().First()
+	textOutput, err := actions.Search(word)
 	if err != nil {
 		return err
 	}
 
-	// Alias not found
-	if len(found) == 0 {
-		utils.DefaultColor.Printf("No matches found for [%s]\n", c.Args().First())
-		return nil
-	}
-
-	// Print
-	printList(found)
-	// utils.Printc(utils.DefaultColor, fmt.Sprintf("\nFound %d entries.\n", len(found)))
+	fmt.Print(textOutput)
 	return nil
 }
 
