@@ -215,9 +215,8 @@ func hostDecoder(host Host) (string, error) {
 	header = fmt.Sprintf("Host %s\n", host.Alias)
 	for key, value := range host.Options {
 		// TODO: Arrumar padding
-		options += fmt.Sprintf("%5s %s\n", key, value)
+		options += fmt.Sprintf("	%s %s\n", key, value)
 	}
 
 	return header + options, nil
-
 }
