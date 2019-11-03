@@ -1,8 +1,12 @@
 package actions
 
 import (
-	"errors"
+	"bufio"
+	"io"
 	"strings"
+
+	"github.com/nicolascb/nssh/internal/config"
+	"github.com/nicolascb/nssh/internal/utils"
 )
 
 func parseURI(uri string) (string, string, string) {
@@ -18,14 +22,14 @@ func parseURI(uri string) (string, string, string) {
 		hostname = tmpURI[1]
 	}
 
+	if len(hostname) == 0 {
+		hostname = uri
+	}
+
 	tmpPort := strings.Split(hostname, ":")
 	if len(tmpPort) > 1 {
 		hostname = tmpPort[0]
 		port = tmpPort[1]
-	}
-
-	if len(hostname) == 0 {
-		hostname = uri
 	}
 
 	return user, port, hostname
