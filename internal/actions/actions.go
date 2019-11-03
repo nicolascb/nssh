@@ -60,13 +60,16 @@ func Edit(oldAlias, newAlias, uri, sshkey string, options []string, forceUpdate,
 	return nil
 }
 
-func Print() (int, error) {
+// Print return hosts in output text format
+func Print() (string, error) {
 	sshConfig, err := config.LoadUserConfig()
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
-	var general config.Host
+	output := formatOutput(sshConfig.Hosts())
+	return output, nil
+}
 	hosts := sshConfig.Hosts()
 	for _, host := range hosts {
 		if host.Alias == config.GeneralDefinitions {
