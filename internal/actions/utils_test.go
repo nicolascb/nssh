@@ -127,7 +127,7 @@ func Test_getHostOptions(t *testing.T) {
 			name: "Test with general",
 			args: func(*testing.T) args {
 				return args{
-					alias:  config.GeneralKey,
+					alias:  config.GeneralDefinitions,
 					uri:    "root@nicolascb.com:22",
 					sshkey: "~/.ssh/mykey",
 					options: []string{
