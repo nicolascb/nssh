@@ -34,6 +34,7 @@ type sshConfig struct {
 	hosts      []Host
 }
 
+// LoadUserConfig read sshconfig user file
 func LoadUserConfig() (SSHConfig, error) {
 	// Get current user homedir
 	homeDir, err := getUserHomeDir()
