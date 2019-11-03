@@ -22,7 +22,7 @@ func Delete(c *cli.Context) error {
 		return err
 	}
 
-	utils.OkColor.Printf("Successfully deleted alias [%s]", alias)
+	utils.OkColor.Printf("Successfully deleted alias [%s]\n", alias)
 	return nil
 }
 
@@ -103,35 +103,12 @@ func Edit(c *cli.Context) error {
 
 // List aliases in ~/.ssh/config
 func List(ct *cli.Context) error {
-
-	items, err := actions.Print()
-	fmt.Println(items, err)
-	return nil
-
-	// Create alias list
-	list, err := GetSSHEntries()
+	textOutput, err := actions.Print()
 	if err != nil {
 		return err
 	}
 
-	// Get general options
-	general, _ := nsshconfig.GetEntryByHost("*")
-
-	if len(list) > 0 {
-		printList(list)
-	}
-
-	// If general exist, print general:
-	if general != nil {
-		utils.GlobalTitleColor.Print("	(*) General Options")
-
-		for i, g := range general.Options {
-			fmt.Printf("		%s: %s\n", i, g)
-		}
-	}
-
-	// Default message, found alias
-	utils.DefaultColor.Printf("\nFound %d entries\n", len(list))
+	fmt.Print(textOutput)
 	return nil
 }
 
