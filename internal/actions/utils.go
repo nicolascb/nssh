@@ -2,6 +2,8 @@ package actions
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"io"
 	"strings"
 
@@ -84,4 +86,64 @@ func confirmProceedUpdate(out io.Reader) bool {
 	}
 
 	return false
+}
+
+func formatOutput(hosts []config.Host) string {
+	var (
+		buf     bytes.Buffer
+		general config.Host
+	)
+
+	for _, host := range hosts {
+		if host.Alias == config.GeneralDefinitions {
+			general = host
+			continue
+		}
+
+		uri := host.Options["hostname"]
+		if port, ok := host.Options["port"]; ok {
+			uri = fmt.Sprintf("%s:%s", uri, port)
+		}
+
+		if user, ok := host.Options["user"]; ok {
+			uri = fmt.Sprintf("%s@%s", user, uri)
+		}
+
+		// Print host alias
+		utils.TitleColor.Fprintf(&buf, "	%s", host.Alias)
+
+		// Print host connection
+		output := fmt.Sprintf(" -> %s\n", uri)
+		fmt.Fprintf(&buf, output)
+
+		// Print host options
+		for key, val := range host.Options {
+			if isPrintableOption(key) {
+				fmt.Fprintf(&buf, "		%s: %s\n", key, val)
+			}
+		}
+	}
+
+	if general.Options != nil {
+		utils.GlobalTitleColor.Fprintf(&buf, "	(*) General options")
+		for key, val := range general.Options {
+			if isPrintableOption(key) {
+				fmt.Fprintf(&buf, "		%s: %s\n", key, val)
+			}
+		}
+	}
+
+	utils.DefaultColor.Fprintf(&buf, "Found %d entries\n", len(hosts))
+	return buf.String()
+}
+
+func isPrintableOption(option string) bool {
+	reservedOptions := []string{"user", "port", "hostname"}
+	for _, rOption := range reservedOptions {
+		if strings.EqualFold(rOption, option) {
+			return false
+		}
+	}
+
+	return true
 }
