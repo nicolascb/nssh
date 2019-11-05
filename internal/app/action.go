@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/nicolascb/nssh/internal/actions"
 	"github.com/nicolascb/nssh/internal/config"
@@ -126,42 +125,5 @@ func Search(c *cli.Context) error {
 	}
 
 	fmt.Print(textOutput)
-	return nil
-}
-
-// Backup sshconfig
-func Backup(c *cli.Context) error {
-	// File to backup
-	file := strings.TrimSpace(c.String("file"))
-	if file == "" {
-		cli.ShowCommandHelpAndExit(c, "backup", 1)
-	}
-
-	// Copy backup
-	if err := utils.CopySSHConfigFile(file); err != nil {
-		return err
-	}
-
-	// OK
-	// utils.Printc(utils.OkColor, fmt.Sprintf("Finished backup [%s]", file))
-	return nil
-}
-
-// ExportCSV save sshconfig in csv file
-func ExportCSV(c *cli.Context) error {
-	// Output file
-	file := strings.TrimSpace(c.String("file"))
-	if file == "" {
-		cli.ShowCommandHelpAndExit(c, "export-csv", 1)
-	}
-
-	// List and create CSV
-	rows, err := generateCSV(file)
-	if err != nil {
-		return err
-	}
-	print(rows)
-	// CSV OK
-	// utils.Printc(utils.OkColor, fmt.Sprintf("Finished export csv [%s] %d aliases", file, rows))
 	return nil
 }
