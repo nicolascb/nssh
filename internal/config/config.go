@@ -37,34 +37,20 @@ type sshConfig struct {
 
 // LoadUserConfig read sshconfig user file
 func LoadUserConfig() (SSHConfig, error) {
-	// Get current user homedir
-	homeDir, err := getUserHomeDir()
+	file, err := sshConfigFile()
 	if err != nil {
 		return nil, err
 	}
 
-	// Get if exist ~/.ssh/config file
-	configFile, err := getSSHConfigPath(homeDir)
-	if err != nil {
-		return nil, err
-	}
+	defer file.Close()
 
-	// ~/.ssh/config exist, proceed to open and parse
-	// hosts
-	f, err := os.Open(configFile)
-	if err != nil {
-		return nil, err
-	}
-
-	defer f.Close()
-
-	hosts, err := parseConfig(f)
+	hosts, err := parseConfig(file)
 	if err != nil {
 		return nil, err
 	}
 
 	return &sshConfig{
-		configFile: configFile,
+		configFile: file.Name(),
 		hosts:      hosts,
 	}, nil
 }
@@ -201,6 +187,29 @@ func (cfg *sshConfig) write() error {
 
 func (cfg *sshConfig) Hosts() []Host {
 	return cfg.hosts
+}
+
+func sshConfigFile() (*os.File, error) {
+	// Get current user homedir
+	homeDir, err := getUserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get if exist ~/.ssh/config file
+	configFile, err := getSSHConfigPath(homeDir)
+	if err != nil {
+		return nil, err
+	}
+
+	// ~/.ssh/config exist, proceed to open and parse
+	// hosts
+	f, err := os.Open(configFile)
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
 }
 
 func hostDecoder(host Host) (string, error) {
