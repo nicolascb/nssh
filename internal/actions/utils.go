@@ -125,7 +125,7 @@ func formatOutput(hosts []config.Host) string {
 	}
 
 	if general.Options != nil {
-		utils.GlobalTitleColor.Fprintf(&buf, "	(*) General options")
+		utils.GlobalTitleColor.Fprintf(&buf, "	(*) General options\n")
 		for key, val := range general.Options {
 			if isPrintableOption(key) {
 				fmt.Fprintf(&buf, "		%s: %s\n", key, val)
