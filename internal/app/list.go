@@ -76,11 +76,11 @@ func GetSSHEntries() ([]SSHHost, error) {
 
 func printList(list []SSHHost) {
 	By(Prop("Name", true)).Sort(list)
-	utils.Printc(utils.DefaultColor, "List:\n")
+	// utils.Printc(utils.DefaultColor, "List:\n")
 	for _, x := range list {
 		str := fmt.Sprintf(" -> %s@%s:%s\n", x.User, x.Hostname, x.Port)
 
-		utils.Printc(utils.TitleColor, fmt.Sprintf("	%s", x.Name))
+		// utils.Printc(utils.TitleColor, fmt.Sprintf("	%s", x.Name))
 		fmt.Print(str)
 
 		for a, c := range x.AnotherOptions {
