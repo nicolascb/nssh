@@ -114,7 +114,7 @@ func formatOutput(hosts []config.Host) string {
 
 		// Print host connection
 		output := fmt.Sprintf(" -> %s\n", uri)
-		fmt.Fprintf(&buf, output)
+		fmt.Fprint(&buf, output)
 
 		// Print host options
 		for key, val := range host.Options {
