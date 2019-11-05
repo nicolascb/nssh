@@ -25,17 +25,6 @@ go get -u github.com/nicolascb/nssh
 
 [Download binary from releases](https://github.com/nicolascb/nssh/releases)
 
-### Compilation instructions
-
-```
-$ git clone git@github.com:nicolascb/nssh.git
-$ cd nssh/
-$ make dep
-$ make build
-```
-
-Binary location ./bin
-
 ## Commands
 
 ```
@@ -43,7 +32,7 @@ USAGE:
    nssh [global options] command [command options] [arguments...]
 
 VERSION:
-   1.0.2
+   2.0
 
 DESCRIPTION:
    An easy way to manage SSH config, see more: github.com/nicolascb/nssh
@@ -52,14 +41,12 @@ AUTHOR:
    Nicolas Barbosa <ndevbarbosa@gmail.com>
 
 COMMANDS:
-     add         Add a new SSH alias to ~/.ssh/config
-     backup      Backup SSH alias
-     del         Delete SSH by alias name
-     edit        Edit SSH alias by name
-     export-csv  Export SSH alias to csv file (Only name, user, hostname and port)
-     list        List SSH alias
-     search      Search SSH alias by given search text
-     help, h     Shows a list of commands or help for one command
+     add      Add a new SSH alias to ~/.ssh/config
+     del      Delete SSH by alias name
+     edit     Edit SSH alias by name
+     list     List SSH alias
+     search   Search SSH alias by given search text
+     help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --help, -h     show help
@@ -73,8 +60,6 @@ GLOBAL OPTIONS:
 - [List](#list)
 - [Delete](#delete)
 - [Search](#search)
-- [Backup](#backup)
-- [Export to CSV](#export-to-csv)
 
 ## Add
 
@@ -190,40 +175,3 @@ Examples:
 nssh search nicolas
 ```
 
-## Backup
-
-```
-NAME:
-   backup - Backup SSH alias
-
-USAGE:
-   nssh backup [-h] -file=/tmp/backup.sshconfig
-
-OPTIONS:
-   --file value  Output backup file
-```
-
-Examples:
-
-```
-nssh backup --file ~/nicolas.backup
-```
-
-## Export to CSV
-
-```
-NAME:
-   export-csv - Export SSH alias to csv file (Only name, user, hostname and port)
-
-USAGE:
-   nssh export [-h] -file /tmp/sshconfig.csv
-
-OPTIONS:
-   --file value  Output CSV file
-```
-
-Examples:
-
-```
-nssh export-csv --file ~/nicolas.backup
-```

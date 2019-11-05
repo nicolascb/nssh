@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/nicolascb/nssh/internal/app"
@@ -11,6 +10,6 @@ import (
 func main() {
 	cmd := app.NewNsshApp()
 	if err := cmd.Run(os.Args); err != nil {
-		utils.Printc(utils.ErrColor, fmt.Sprintf("failed: %v\n", err))
+		utils.ErrColor.Printf("ERROR: %v\n", err)
 	}
 }

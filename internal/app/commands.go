@@ -75,32 +75,6 @@ func cliOptions() []cli.Command {
 			},
 			Action: Edit,
 		},
-		{
-			Name:      "export-csv",
-			Usage:     "Export SSH alias to csv file (Only name, user, hostname and port)",
-			UsageText: "nssh export [-h] -file /tmp/sshconfig.csv",
-			HelpName:  "export-csv",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "file",
-					Usage: "Output CSV file",
-				},
-			},
-			Action: ExportCSV,
-		},
-		{
-			Name:      "backup",
-			Usage:     "Backup SSH alias",
-			UsageText: "nssh backup [-h] -file=/tmp/backup.sshconfig",
-			HelpName:  "backup",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "file",
-					Usage: "Output backup file",
-				},
-			},
-			Action: Backup,
-		},
 	}
 
 	return cliCommands

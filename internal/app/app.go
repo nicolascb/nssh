@@ -1,10 +1,7 @@
 package app
 
 import (
-	"encoding/csv"
-	"os"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/urfave/cli"
@@ -33,62 +30,62 @@ func NewNsshApp() *cli.App {
 	return app
 }
 
-func parseHostConnection(connection string) map[string]string {
-	options := make(map[string]string)
-	if strings.Contains(connection, "@") {
-		options["user"] = strings.Split(connection, "@")[0]
-		options["hostname"] = strings.Split(connection, "@")[1]
-	}
+// func parseHostConnection(connection string) map[string]string {
+// 	options := make(map[string]string)
+// 	if strings.Contains(connection, "@") {
+// 		options["user"] = strings.Split(connection, "@")[0]
+// 		options["hostname"] = strings.Split(connection, "@")[1]
+// 	}
 
-	if strings.Contains(connection, ":") {
-		options["port"] = strings.Split(connection, ":")[1]
-		if _, ok := options["hostname"]; ok {
-			options["hostname"] = strings.Split(options["hostname"], ":")[0]
-		} else {
-			options["hostname"] = strings.Split(connection, ":")[0]
-		}
-	}
+// 	if strings.Contains(connection, ":") {
+// 		options["port"] = strings.Split(connection, ":")[1]
+// 		if _, ok := options["hostname"]; ok {
+// 			options["hostname"] = strings.Split(options["hostname"], ":")[0]
+// 		} else {
+// 			options["hostname"] = strings.Split(connection, ":")[0]
+// 		}
+// 	}
 
-	if _, ok := options["hostname"]; !ok {
-		options["hostname"] = connection
-	}
+// 	if _, ok := options["hostname"]; !ok {
+// 		options["hostname"] = connection
+// 	}
 
-	return options
-}
+// 	return options
+// }
 
-func generateCSV(dst string) (int, error) {
+// func generateCSV(dst string) (int, error) {
 
-	list, err := GetSSHEntries()
-	if err != nil {
-		return 0, err
-	}
+// 	list, err := GetSSHEntries()
+// 	if err != nil {
+// 		return 0, err
+// 	}
 
-	file, err := os.Create(dst)
-	if err != nil {
-		return len(list), err
-	}
+// 	file, err := os.Create(dst)
+// 	if err != nil {
+// 		return len(list), err
+// 	}
 
-	defer file.Close()
+// 	defer file.Close()
 
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
+// 	writer := csv.NewWriter(file)
+// 	defer writer.Flush()
 
-	header := []string{
-		"Alias",
-		"User",
-		"Hostname",
-		"Port"}
+// 	header := []string{
+// 		"Alias",
+// 		"User",
+// 		"Hostname",
+// 		"Port"}
 
-	if err = writer.Write(header); err != nil {
-		return len(list), err
-	}
+// 	if err = writer.Write(header); err != nil {
+// 		return len(list), err
+// 	}
 
-	for _, h := range list {
-		line := []string{h.Name, h.User, h.Hostname, h.Port}
-		if err := writer.Write(line); err != nil {
-			return len(list), err
-		}
-	}
+// 	for _, h := range list {
+// 		line := []string{h.Name, h.User, h.Hostname, h.Port}
+// 		if err := writer.Write(line); err != nil {
+// 			return len(list), err
+// 		}
+// 	}
 
-	return len(list), nil
-}
+// 	return len(list), nil
+// }
