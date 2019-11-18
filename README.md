@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/nicolascb/nssh)](https://goreportcard.com/report/github.com/nicolascb/nssh)
 # nssh - An easy way to manage SSH connections in Linux
 
 Command line tool for manage ~/.ssh/config written in Go.
